@@ -2,12 +2,12 @@
   "name": "My Spiritual Diary",
   "short_name": "Spiritual Diary",
   "description": "Track your daily spiritual practices and build character through consistent action.",
-  "start_url": "/",
+  "start_url": "/spiritual-diary/",
+  "scope": "/spiritual-diary/",
   "display": "standalone",
   "background_color": "#fef7ed",
   "theme_color": "#f97316",
   "orientation": "portrait",
-  "scope": "/",
   "lang": "en",
   "icons": [
     {
