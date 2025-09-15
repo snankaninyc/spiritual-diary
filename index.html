@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Spiritual Diary</title>
+    <meta name="description" content="Track your daily spiritual practices and build character through consistent action.">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#f97316">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Spiritual Diary">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- Icons for PWA -->
+    <link rel="apple-touch-icon" sizes="180x180" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icon-192.png">
+    <link rel="manifest" href="manifest.json">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #fef7ed 0%, #fdf2f8 100%);
+        }
+        .gradient-button {
+            background: linear-gradient(135deg, #f97316 0%, #ec4899 100%);
+        }
+        .gradient-header {
+            background: linear-gradient(135deg, #f97316 0%, #ec4899 100%);
+        }
+        .practice-row:nth-child(even) {
+            background-color: #f9fafb;
+        }
+        .install-banner {
+            background: linear-gradient(135deg, #059669 0%, #0d9488 100%);
+        }
+        @media (max-width: 768px) {
+            .mobile-scroll {
+                font-size: 14px;
+            }
+            .mobile-checkbox {
+                width: 20px;
+                height: 20px;
+            }
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- Install Banner -->
+    <div id="installBanner" class="install-banner text-white p-3 text-center hidden">
+        <p class="text-sm mb-2">📱 Install this app on your device for the best experience!</p>
+        <button id="installBtn" class="bg-white text-green-700 px-4 py-1 rounded-full text-sm font-medium hover:bg-gray-100">
+            Install App
+        </button>
+        <button id="dismissBanner" class="ml-3 text-white hover:text-gray-200">
+            ✕
+        </button>
+    </div>
+
+    <div class="p-4">
+        <div class="max-w-7xl mx-auto">
+            <!-- Header Section -->
+            <div class="text-center mb-8 relative">
+                <!-- Top Left Logo -->
+                <div class="absolute top-0 left-0">
+                    <img src="logo sseducare.png" alt="SSE Logo" class="w-12 h-12 md:w-16 md:h-16 object-contain">
+                </div>
+                
+                <!-- Center Logo -->
+                <div class="flex justify-center mb-4">
+                    <img src="SSSE-logo.png" alt="SSSE Logo" class="w-16 h-16 md:w-20 md:h-20 object-contain">
+                </div>
+                
+                <h1 class="text-2xl md:text-4xl font-bold text-gray-800 mb-2">My Spiritual Diary</h1>
+                
+                <!-- User Name Section -->
+                <div class="mb-4">
+                    <div id="nameDisplay" class="hidden">
+                        <p class="text-lg font-medium text-gray-700">Welcome, <span id="userName" class="text-orange-600"></span>!</p>
+                        <button id="editNameBtn" class="text-sm text-blue-500 hover:text-blue-700 underline">Edit Name</button>
+                    </div>
+                    <div id="nameInput" class="flex flex-col md:flex-row gap-2 items-center justify-center">
+                        <input type="text" id="userNameField" placeholder="Enter your name" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-center">
+                        <button id="saveNameBtn" class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors">Save Name</button>
+                    </div>
+                </div>
+                
+                <p class="text-xs md:text-sm text-gray-600 max-w-2xl mx-auto italic px-4">
+                    "Character is built up by constant practice of good actions."<br>
+                    —Sri Sathya Sai Baba, July 21, 1986
+                </p>
+            </div>
+
+            <!-- Month and Year Selection -->
+            <div class="flex justify-center gap-2 md:gap-4 mb-6">
+                <select id="monthSelect" class="px-2 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm md:text-base" onchange="updateDaysInMonth()">
+                    <option value="1">January</option>
+                    <option value="2">February</option>
+                    <option value="3">March</option>
+                    <option value="4">April</option>
+                    <option value="5">May</option>
+                    <option value="6">June</option>
+                    <option value="7">July</option>
+                    <option value="8">August</option>
+                    <option value="9">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+                <select id="yearSelect" class="px-2 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm md:text-base" onchange="updateDaysInMonth()">
+                    <option value="2024">2024</option>
+                    <option value="2025" selected>2025</option>
+                    <option value="2026">2026</option>
+                </select>
+                
+                <!-- Share Button -->
+                <button id="shareBtn" class="bg-blue-500 text-white px-3 md:px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm md:text-base flex items-center gap-1">
+                    📤 Share
+                </button>
+            </div>
+
+            <!-- Add Practice Section -->
+            <div class="flex justify-center mb-6 px-4">
+                <div id="addPracticeContainer">
+                    <button id="addPracticeBtn" class="gradient-button text-white px-4 md:px-6 py-2 md:py-3 rounded-lg hover:opacity-90 transition-all duration-200 flex items-center gap-2 shadow-lg text-sm md:text-base">
+                        <span>+</span>
+                        Add Your Spiritual Practice
+                    </button>
+                    <div id="addPracticeForm" class="hidden flex flex-col md:flex-row gap-2 items-stretch md:items-center">
+                        <input type="text" id="newPracticeInput" placeholder="Enter your spiritual practice..." class="px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm md:text-base w-full md:w-80">
+                        <div class="flex gap-2 justify-center">
+                            <button id="savePracticeBtn" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors text-sm md:text-base">✓ Save</button>
+                            <button id="cancelPracticeBtn" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors text-sm md:text-base">✕ Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Practices Grid -->
+            <div class="bg-white rounded-xl shadow-xl overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full mobile-scroll">
+                        <thead class="gradient-header text-white">
+                            <tr>
+                                <th class="px-2 md:px-4 py-2 md:py-3 text-left font-semibold text-xs md:text-sm" style="min-width: 200px;">Spiritual Practices</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">1</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">2</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">3</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">4</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">5</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">6</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">7</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">8</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">9</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">10</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">11</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">12</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">13</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">14</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">15</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">16</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">17</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">18</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">19</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">20</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">21</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">22</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">23</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">24</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">25</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">26</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">27</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">28</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">29</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">30</th>
+                                <th class="px-1 py-2 md:py-3 text-center font-semibold text-xs" style="min-width: 25px;">31</th>
+                                <th class="px-2 md:px-4 py-2 md:py-3 text-center font-semibold text-xs">✕</th>
+                            </tr>
+                        </thead>
+                        <tbody id="practicesTableBody">
+                            <!-- Practices will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center mt-8 text-gray-500 text-xs md:text-sm px-4">
+                <p>Track your daily spiritual practices and build character through consistent action.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Default practices (these cannot be deleted)
+        const defaultPractices = [
+            "I said a daily prayer.",
+            "I was respectful to my parents.",
+            "I kept my room clean.",
+            "I made my bed.",
+            "I did not hurt anyone with my words and used kind words.",
+            "I was clean and had a neat appearance (brushed teeth, combed hair, showered, etc.)",
+            "I helped at least one person.",
+            "I was responsible for my own schoolwork.",
+            "I helped around the house.",
+            "I limited my screen time.",
+            "I made healthy food choices.",
+            "I did not waste food.",
+            "I did not waste water.",
+            "I used a reusable water bottle."
+        ];
+
+        let practices = [...defaultPractices];
+        let additionalPractices = []; // Only these can be deleted
+        let checkedItems = {};
+        let userName = '';
+        let currentDaysInMonth = 31;
+
+        // Get days in month
+        function getDaysInMonth(month, year) {
+            return new Date(year, month, 0).getDate();
+        }
+
+        // Update days in month when month/year changes
+        function updateDaysInMonth() {
+            const month = parseInt(document.getElementById('monthSelect').value);
+            const year = parseInt(document.getElementById('yearSelect').value);
+            currentDaysInMonth = getDaysInMonth(month, year);
+            renderPractices();
+        }
+
+        // Set current month
+        function setCurrentMonth() {
+            const now = new Date();
+            document.getElementById('monthSelect').value = now.getMonth() + 1;
+            document.getElementById('yearSelect').value = now.getFullYear();
+            updateDaysInMonth();
+        }
+
+        // User Name functionality
+        function loadUserName() {
+            const saved = localStorage.getItem('spiritualDiaryUserName');
+            if (saved) {
+                userName = saved;
+                document.getElementById('userName').textContent = userName;
+                document.getElementById('nameDisplay').classList.remove('hidden');
+                document.getElementById('nameInput').classList.add('hidden');
+            }
+        }
+
+        function saveUserName() {
+            const nameField = document.getElementById('userNameField');
+            if (nameField.value.trim()) {
+                userName = nameField.value.trim();
+                localStorage.setItem('spiritualDiaryUserName', userName);
+                document.getElementById('userName').textContent = userName;
+                document.getElementById('nameDisplay').classList.remove('hidden');
+                document.getElementById('nameInput').classList.add('hidden');
+                nameField.value = '';
+            }
+        }
+
+        function editUserName() {
+            document.getElementById('userNameField').value = userName;
+            document.getElementById('nameDisplay').classList.add('hidden');
+            document.getElementById('nameInput').classList.remove('hidden');
+            document.getElementById('userNameField').focus();
+        }
+
+        // Share functionality
+        async function shareProgress() {
+            const monthSelect = document.getElementById('monthSelect');
+            const month = monthSelect.options[monthSelect.selectedIndex].text;
+            const year = document.getElementById('yearSelect').value;
+            
+            // Calculate completion stats
+            let totalChecks = 0;
+            let totalPossible = 0;
+            const allPractices = [...practices, ...additionalPractices];
+            
+            allPractices.forEach((practice, practiceIndex) => {
+                for (let day = 1; day <= currentDaysInMonth; day++) {
+                    const key = `${practiceIndex}-${day}`;
+                    if (checkedItems[key]) totalChecks++;
+                    totalPossible++;
+                }
+            });
+            
+            const percentage = totalPossible > 0 ? Math.round((totalChecks / totalPossible) * 100) : 0;
+            
+            const shareText = `${userName ? userName + "'s" : "My"} Spiritual Diary - ${month} ${year}
+            
+📊 Progress: ${totalChecks}/${totalPossible} practices completed (${percentage}%)
+
+✨ Spiritual Practices Tracked:
+${allPractices.map(p => `• ${p}`).join('\n')}
+
+🙏 "Character is built up by constant practice of good actions." - Sri Sathya Sai Baba
+
+Track your spiritual growth: ${window.location.href}`;
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'My Spiritual Diary Progress',
+                        text: shareText
+                    });
+                } catch (err) {
+                    console.log('Share cancelled');
+                }
+            } else {
+                // Fallback: copy to clipboard
+                if (navigator.clipboard) {
+                    try {
+                        await navigator.clipboard.writeText(shareText);
+                        alert('Progress copied to clipboard! You can now paste and share it.');
+                    } catch (err) {
+                        // Final fallback: show in modal
+                        alert('Share Text:\n\n' + shareText);
+                    }
+                } else {
+                    // Final fallback: show in modal
+                    alert('Share Text:\n\n' + shareText);
+                }
+            }
+        }
+
+        // PWA Install functionality
+        let deferredPrompt;
+        const installBanner = document.getElementById('installBanner');
+        const installBtn = document.getElementById('installBtn');
+        const dismissBanner = document.getElementById('dismissBanner');
+
+        // Listen for install prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBanner.classList.remove('hidden');
+        });
+
+        // Install button click
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                deferredPrompt = null;
+                installBanner.classList.add('hidden');
+            }
+        });
+
+        // Dismiss banner
+        dismissBanner.addEventListener('click', () => {
+            installBanner.classList.add('hidden');
+        });
+
+        // Hide install banner if already installed
+        window.addEventListener('appinstalled', () => {
+            installBanner.classList.add('hidden');
+        });
+
+        // Load data from localStorage
+        function loadData() {
+            const savedAdditionalPractices = localStorage.getItem('spiritualDiaryAdditionalPractices');
+            const savedCheckedItems = localStorage.getItem('spiritualDiaryChecked');
+            
+            if (savedAdditionalPractices) {
+                additionalPractices = JSON.parse(savedAdditionalPractices);
+            }
+            if (savedCheckedItems) {
+                checkedItems = JSON.parse(savedCheckedItems);
+            }
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('spiritualDiaryAdditionalPractices', JSON.stringify(additionalPractices));
+            localStorage.setItem('spiritualDiaryChecked', JSON.stringify(checkedItems));
+        }
+
+        // Toggle checkbox
+        function toggleCheck(practiceIndex, day) {
+            const key = `${practiceIndex}-${day}`;
+            checkedItems[key] = !checkedItems[key];
+            saveData();
+            renderPractices();
+        }
+
+        // Remove practice (only additional practices can be removed)
+        function removePractice(index) {
+            const practiceIndex = index - defaultPractices.length;
+            if (practiceIndex >= 0 && practiceIndex < additionalPractices.length) {
+                additionalPractices.splice(practiceIndex, 1);
+                // Clean up checked items for removed practice
+                for (let day = 1; day <= 31; day++) {
+                    delete checkedItems[`${index}-${day}`];
+                }
+                saveData();
+                renderPractices();
+            }
+        }
+
+        // Render practices table
+        function renderPractices() {
+            const tbody = document.getElementById('practicesTableBody');
+            tbody.innerHTML = '';
+            
+            // Update table header to show correct number of days
+            updateTableHeader();
+            
+            const allPractices = [...practices, ...additionalPractices];
+
+            allPractices.forEach((practice, practiceIndex) => {
+                const row = document.createElement('tr');
+                row.className = `practice-row border-b hover:bg-gray-50`;
+                
+                let rowHTML = `<td class="px-2 md:px-4 py-2 md:py-3 font-medium text-gray-800 border-r text-xs md:text-sm">${practice}</td>`;
+                
+                for (let day = 1; day <= currentDaysInMonth; day++) {
+                    const isChecked = checkedItems[`${practiceIndex}-${day}`];
+                    rowHTML += `
+                        <td class="px-1 py-2 md:py-3 text-center border-r">
+                            <button 
+                                onclick="toggleCheck(${practiceIndex}, ${day})"
+                                class="mobile-checkbox w-4 h-4 md:w-6 md:h-6 rounded border-2 flex items-center justify-center transition-all duration-200 ${
+                                    isChecked 
+                                        ? 'bg-green-500 border-green-500 text-white' 
+                                        : 'border-gray-300 hover:border-green-400'
+                                }"
+                            >
+                                ${isChecked ? '✓' : ''}
+                            </button>
+                        </td>
+                    `;
+                }
+                
+                // Only show delete button for additional practices
+                const canDelete = practiceIndex >= defaultPractices.length;
+                rowHTML += `
+                    <td class="px-2 md:px-4 py-2 md:py-3 text-center">
+                        ${canDelete ? `
+                            <button 
+                                onclick="removePractice(${practiceIndex})"
+                                class="text-red-500 hover:text-red-700 transition-colors p-1 text-xs md:text-sm"
+                                title="Remove practice"
+                            >
+                                ✕
+                            </button>
+                        ` : `
+                            <span class="text-gray-400 text-xs">Core</span>
+                        `}
+                    </td>
+                `;
+                
+                row.innerHTML = rowHTML;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Update table header with correct number of days
+        function updateTableHeader() {
+            const headerRow = document.querySelector('thead tr');
+            const dayHeaders = headerRow.querySelectorAll('th:not(:first-child):not(:last-child)');
+            
+            dayHeaders.forEach((header, index) => {
+                const day = index + 1;
+                if (day <= currentDaysInMonth) {
+                    header.style.display = '';
+                } else {
+                    header.style.display = 'none';
+                }
+            });
+        }
+
+        // Add practice functionality
+        document.getElementById('addPracticeBtn').addEventListener('click', function() {
+            document.getElementById('addPracticeBtn').style.display = 'none';
+            document.getElementById('addPracticeForm').classList.remove('hidden');
+            document.getElementById('newPracticeInput').focus();
+        });
+
+        document.getElementById('savePracticeBtn').addEventListener('click', function() {
+            const newPractice = document.getElementById('newPracticeInput').value.trim();
+            if (newPractice) {
+                additionalPractices.push(newPractice);
+                saveData();
+                renderPractices();
+                
+                document.getElementById('newPracticeInput').value = '';
+                document.getElementById('addPracticeBtn').style.display = 'flex';
+                document.getElementById('addPracticeForm').classList.add('hidden');
+            }
+        });
+
+        document.getElementById('cancelPracticeBtn').addEventListener('click', function() {
+            document.getElementById('newPracticeInput').value = '';
+            document.getElementById('addPracticeBtn').style.display = 'flex';
+            document.getElementById('addPracticeForm').classList.add('hidden');
+        });
+
+        document.getElementById('newPracticeInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('savePracticeBtn').click();
+            }
+        });
+
+        // User name event listeners
+        document.getElementById('saveNameBtn').addEventListener('click', saveUserName);
+        document.getElementById('editNameBtn').addEventListener('click', editUserName);
+        document.getElementById('userNameField').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                saveUserName();
+            }
+        });
+
+        // Share button event listener
+        document.getElementById('shareBtn').addEventListener('click', shareProgress);
+
+        // Initialize app
+        loadData();
+        loadUserName();
+        setCurrentMonth();
+        renderPractices();
+
+        // Service Worker registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then((registration) => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch((registrationError) => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
