@@ -3,11 +3,11 @@
   "short_name": "Spiritual Diary",
   "description": "Track your daily spiritual practices and build character through consistent action.",
   "start_url": "/spiritual-diary/",
-  "scope": "/spiritual-diary/",
   "display": "standalone",
   "background_color": "#fef7ed",
   "theme_color": "#f97316",
   "orientation": "portrait",
+  "scope": "/spiritual-diary/",
   "lang": "en",
   "icons": [
     {
@@ -29,7 +29,7 @@
       "name": "Today's Practices",
       "short_name": "Today",
       "description": "View today's spiritual practices",
-      "url": "/",
+      "url": "/spiritual-diary/",
       "icons": [
         {
           "src": "icon-192.png",
