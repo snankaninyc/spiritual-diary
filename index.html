@@ -36,6 +36,87 @@
         .install-banner {
             background: linear-gradient(135deg, #059669 0%, #0d9488 100%);
         }
+        
+        /* Frozen Column Styles */
+        .table-container {
+            position: relative;
+            overflow-x: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+        }
+        
+        .practices-table {
+            min-width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        /* Freeze the first column (practices) */
+        .practices-table th:first-child,
+        .practices-table td:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 10;
+            background: white;
+            border-right: 2px solid #d1d5db;
+        }
+        
+        /* Header styling for frozen column */
+        .practices-table thead th:first-child {
+            background: linear-gradient(135deg, #f97316 0%, #ec4899 100%);
+            color: white;
+            z-index: 11;
+        }
+        
+        /* Action column (last column) also frozen */
+        .practices-table th:last-child,
+        .practices-table td:last-child {
+            position: sticky;
+            right: 0;
+            z-index: 10;
+            background: white;
+            border-left: 2px solid #d1d5db;
+        }
+        
+        /* Header styling for action column */
+        .practices-table thead th:last-child {
+            background: linear-gradient(135deg, #f97316 0%, #ec4899 100%);
+            color: white;
+            z-index: 11;
+        }
+        
+        /* Ensure header row is above scrolling content */
+        .practices-table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 9;
+        }
+        
+        /* Add shadow to frozen columns for visual separation */
+        .practices-table th:first-child::after,
+        .practices-table td:first-child::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -2px;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to right, rgba(0,0,0,0.1), transparent);
+            pointer-events: none;
+        }
+        
+        .practices-table th:last-child::before,
+        .practices-table td:last-child::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -2px;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to left, rgba(0,0,0,0.1), transparent);
+            pointer-events: none;
+        }
+        
         @media (max-width: 768px) {
             .mobile-scroll {
                 font-size: 14px;
@@ -43,6 +124,13 @@
             .mobile-checkbox {
                 width: 20px;
                 height: 20px;
+            }
+            
+            /* Adjust frozen column width on mobile */
+            .practices-table th:first-child,
+            .practices-table td:first-child {
+                min-width: 200px;
+                max-width: 200px;
             }
         }
     </style>
@@ -140,8 +228,8 @@
 
             <!-- Practices Grid -->
             <div class="bg-white rounded-xl shadow-xl overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full mobile-scroll">
+                <div class="table-container">
+                    <table class="practices-table w-full mobile-scroll">
                         <thead class="gradient-header text-white">
                             <tr>
                                 <th class="px-2 md:px-4 py-2 md:py-3 text-left font-semibold text-xs md:text-sm" style="min-width: 200px;">Spiritual Practices</th>
@@ -234,8 +322,14 @@
         // Set current month
         function setCurrentMonth() {
             const now = new Date();
-            document.getElementById('monthSelect').value = now.getMonth() + 1;
-            document.getElementById('yearSelect').value = now.getFullYear();
+            const currentMonth = now.getMonth() + 1; // Convert 0-11 to 1-12
+            const currentYear = now.getFullYear();
+            
+            // Set the select values
+            document.getElementById('monthSelect').value = currentMonth;
+            document.getElementById('yearSelect').value = currentYear;
+            
+            // Update days in month
             updateDaysInMonth();
         }
 
@@ -276,23 +370,31 @@
             const year = document.getElementById('yearSelect').value;
             
             // Calculate completion stats
-            let totalChecks = 0;
+            let totalCompleted = 0;
+            let totalNotDone = 0;
             let totalPossible = 0;
             const allPractices = [...practices, ...additionalPractices];
             
             allPractices.forEach((practice, practiceIndex) => {
                 for (let day = 1; day <= currentDaysInMonth; day++) {
                     const key = `${practiceIndex}-${day}`;
-                    if (checkedItems[key]) totalChecks++;
+                    const state = checkedItems[key] || 0;
+                    if (state === 1) totalCompleted++; // Green checkmarks
+                    if (state === 2) totalNotDone++; // Red X marks
                     totalPossible++;
                 }
             });
             
-            const percentage = totalPossible > 0 ? Math.round((totalChecks / totalPossible) * 100) : 0;
+            const completionPercentage = totalPossible > 0 ? Math.round((totalCompleted / totalPossible) * 100) : 0;
+            const totalTracked = totalCompleted + totalNotDone;
+            const trackingPercentage = totalPossible > 0 ? Math.round((totalTracked / totalPossible) * 100) : 0;
             
             const shareText = `${userName ? userName + "'s" : "My"} Spiritual Diary - ${month} ${year}
             
-📊 Progress: ${totalChecks}/${totalPossible} practices completed (${percentage}%)
+📊 Progress Summary:
+✅ Completed: ${totalCompleted}/${totalPossible} (${completionPercentage}%)
+❌ Not Done: ${totalNotDone}/${totalPossible} (${Math.round((totalNotDone / totalPossible) * 100)}%)
+📋 Total Tracked: ${totalTracked}/${totalPossible} (${trackingPercentage}%)
 
 ✨ Spiritual Practices Tracked:
 ${allPractices.map(p => `• ${p}`).join('\n')}
@@ -379,10 +481,14 @@ Track your spiritual growth: ${window.location.href}`;
             localStorage.setItem('spiritualDiaryChecked', JSON.stringify(checkedItems));
         }
 
-        // Toggle checkbox
+        // Toggle checkbox with three states: empty, checked, X
         function toggleCheck(practiceIndex, day) {
             const key = `${practiceIndex}-${day}`;
-            checkedItems[key] = !checkedItems[key];
+            const currentState = checkedItems[key] || 0; // 0 = empty, 1 = checked, 2 = X
+            
+            // Cycle through states: 0 → 1 → 2 → 0
+            checkedItems[key] = (currentState + 1) % 3;
+            
             saveData();
             renderPractices();
         }
@@ -418,21 +524,40 @@ Track your spiritual growth: ${window.location.href}`;
                 let rowHTML = `<td class="px-2 md:px-4 py-2 md:py-3 font-medium text-gray-800 border-r text-xs md:text-sm">${practice}</td>`;
                 
                 for (let day = 1; day <= currentDaysInMonth; day++) {
-                    const isChecked = checkedItems[`${practiceIndex}-${day}`];
+                    const checkState = checkedItems[`${practiceIndex}-${day}`] || 0;
+                    const dayStyle = day <= currentDaysInMonth ? '' : 'style="display: none;"';
+                    
+                    let buttonClass, buttonContent;
+                    if (checkState === 1) {
+                        // Green checkmark
+                        buttonClass = 'bg-green-500 border-green-500 text-white';
+                        buttonContent = '✓';
+                    } else if (checkState === 2) {
+                        // Red X mark
+                        buttonClass = 'bg-red-500 border-red-500 text-white';
+                        buttonContent = '✕';
+                    } else {
+                        // Empty state
+                        buttonClass = 'border-gray-300 hover:border-green-400';
+                        buttonContent = '';
+                    }
+                    
                     rowHTML += `
-                        <td class="px-1 py-2 md:py-3 text-center border-r">
+                        <td class="px-1 py-2 md:py-3 text-center border-r" ${dayStyle}>
                             <button 
                                 onclick="toggleCheck(${practiceIndex}, ${day})"
-                                class="mobile-checkbox w-4 h-4 md:w-6 md:h-6 rounded border-2 flex items-center justify-center transition-all duration-200 ${
-                                    isChecked 
-                                        ? 'bg-green-500 border-green-500 text-white' 
-                                        : 'border-gray-300 hover:border-green-400'
-                                }"
+                                class="mobile-checkbox w-4 h-4 md:w-6 md:h-6 rounded border-2 flex items-center justify-center transition-all duration-200 ${buttonClass}"
+                                title="Click to cycle: Empty → Done ✓ → Not Done ✕ → Empty"
                             >
-                                ${isChecked ? '✓' : ''}
+                                ${buttonContent}
                             </button>
                         </td>
                     `;
+                }
+                
+                // Add hidden cells for days beyond current month to maintain table structure
+                for (let day = currentDaysInMonth + 1; day <= 31; day++) {
+                    rowHTML += `<td class="px-1 py-2 md:py-3 text-center border-r" style="display: none;"></td>`;
                 }
                 
                 // Only show delete button for additional practices
